@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat App</title>
+    <script src="/socket.io/socket.io.js"></script> <!-- Include Socket.IO client library -->
+</head>
+<body>
+    <div>
+        <h2>Room: <span id="roomName"></span></h2>
+    </div>
+    
+    <ul id="messages"></ul>
+    <input id="message" autocomplete="off">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const socket = io(); // Establish WebSocket connection
+        
+        // Function to parse URL parameters
+        function getRoomFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('roomName');
+        }
+		
+		socket.emit('join room', getRoomFromURL(), (response) => {
+			if (response.success) {
+				// Room join successful, redirect to room.html with room parameter
+				console.log('Conncted')
+			} else {
+				// Room join failed, handle error or display message
+				alert('Failed to join room. Please try again.');
+			}
+		});
+
+        // Function to send message
+        function sendMessage() {
+            const message = document.getElementById('message').value;
+            const room = getRoomFromURL(); // Get room from URL parameter
+            socket.emit('chat message', { room, message }); // Send message to the server
+            document.getElementById('message').value = '';
+        }
+
+        // Event listener to receive messages
+        socket.on('chat message', (msg) => {
+			console.log('recieved',msg)
+            const messages = document.getElementById('messages');
+            const li = document.createElement('li');
+			li.textContent = msg;
+			messages.appendChild(li);
+        });
+
+        // Set room name in the HTML
+        document.getElementById('roomName').innerText = getRoomFromURL();
+    </script>
+</body>
+</html>

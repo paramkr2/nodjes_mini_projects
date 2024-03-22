@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat App - Select Room</title>
+    <script>
+		function joinRoom(){
+			window.location.href = `room?roomName=${roomName}`;
+		}
+        
+    </script>
+</head>
+<body>
+    <h1>Select a Room</h1>
+    <ul>
+        <li><button onclick="joinRoom('room1')">Room 1</button></li>
+        <li><button onclick="joinRoom('room2')">Room 2</button></li>
+        <li><button onclick="joinRoom('room3')">Room 3</button></li>
+    </ul>
+</body>
+</html>
