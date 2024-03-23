@@ -3,18 +3,33 @@
 <head>
     <title>Chat App - Select Room</title>
     <script>
-		function joinRoom(){
-			window.location.href = `room?roomName=${roomName}`;
+		let username = '';
+		document.getElementById('selectRoom').style.display = 'none';
+		function createUsername(){
+			username = document.getElementById('username').value
+			// possibly send it to backend and chat todo
+			
+			document.getElementById('inputUsername').style.display = 'none';
+			document.getElementById('selectRoom').style.display = 'block';
 		}
-        
+		function joinRoom(roomName){
+			window.location.href = `room?roomName=${roomName}?username=${username}`;
+		} 
     </script>
 </head>
 <body>
-    <h1>Select a Room</h1>
-    <ul>
-        <li><button onclick="joinRoom('room1')">Room 1</button></li>
-        <li><button onclick="joinRoom('room2')">Room 2</button></li>
-        <li><button onclick="joinRoom('room3')">Room 3</button></li>
-    </ul>
+	<div id="inputUsername">
+		<h1> Username </h1>
+		<input id="username" autocomplete="off">
+		<button onclick="createUsername()">Send</button>
+	</div>
+	<div id="selectRoom">
+		<h1>Select a Room</h1>
+		<ul>
+			<li><button onclick="joinRoom('room1')">Room 1</button></li>
+			<li><button onclick="joinRoom('room2')">Room 2</button></li>
+			<li><button onclick="joinRoom('room3')">Room 3</button></li>
+		</ul>
+	</h1>
 </body>
 </html>

@@ -3,26 +3,21 @@
 <head>
     <title>Chat App</title>
     <script src="/socket.io/socket.io.js"></script> <!-- Include Socket.IO client library -->
-</head>
-<body>
-    <div>
-        <h2>Room: <span id="roomName"></span></h2>
-    </div>
-    
-    <ul id="messages"></ul>
-    <input id="message" autocomplete="off">
-    <button onclick="sendMessage()">Send</button>
-
-    <script>
+	<script>
         const socket = io(); // Establish WebSocket connection
-        
-        // Function to parse URL parameters
-        function getRoomFromURL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('roomName');
-        }
+        const urlParams = new URLSearchParams(window.location.search);
+        const room = urlParams.get('roomName');
+		const username = urlParams.get('username');
+		console.log(`user:${username} room:${room}`)
+		socket.emit('set username', username , (response)=>{
+			if(response.success){
+				console.log('User JOined')
+			}else{
+				alert('User Failed to join');
+			}
+		})
 		
-		socket.emit('join room', getRoomFromURL(), (response) => {
+		socket.emit('join room', room, (response) => {
 			if (response.success) {
 				// Room join successful, redirect to room.html with room parameter
 				console.log('Conncted')
@@ -35,22 +30,53 @@
         // Function to send message
         function sendMessage() {
             const message = document.getElementById('message').value;
-            const room = getRoomFromURL(); // Get room from URL parameter
             socket.emit('chat message', { room, message }); // Send message to the server
             document.getElementById('message').value = '';
         }
 
         // Event listener to receive messages
-        socket.on('chat message', (msg) => {
-			console.log('recieved',msg)
+        socket.on('chat message', (data) => {
+			console.log('recieved',data)
             const messages = document.getElementById('messages');
             const li = document.createElement('li');
-			li.textContent = msg;
+			const color = getUsernameColor(data.username);
+			//const userSpan = `<span style="color: ${color};">${data.username}</span> `;
+			const usernameSpan = document.createElement('span');
+			usernameSpan.textContent = data.username + ': '; // Set username text content
+			usernameSpan.style.color = color;
+			li.appendChild(usernameSpan)
+			li.appendChild(document.createTextNode(data.message));
 			messages.appendChild(li);
         });
+		function getUsernameColor(username) {
+			// Generate a consistent color based on the username
+			const hash = hashCode(username);
+			const hue = hash % 360; // Use the hash value to determine the hue (0 to 359)
+			return `hsl(${hue}, 70%, 50%)`; // Convert hue to HSL color format
+		}
+
+		// Function to calculate a hash code from a string
+		function hashCode(str) {
+			let hash = 0;
+			for (let i = 0; i < str.length; i++) {
+				hash = str.charCodeAt(i) + ((hash << 5) - hash);
+			}
+			return hash;
+		}
 
         // Set room name in the HTML
-        document.getElementById('roomName').innerText = getRoomFromURL();
+        document.getElementById('roomName').innerText = room;
     </script>
+</head>
+<body>
+    <div>
+        <h2>Room: <span id="roomName"></span></h2>
+    </div>
+    
+    <ul id="messages"></ul>
+    <input id="message" autocomplete="off">
+    <button onclick="sendMessage()">Send</button>
+
+    
 </body>
 </html>
